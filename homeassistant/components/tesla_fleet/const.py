@@ -13,7 +13,6 @@ CONF_REFRESH_TOKEN = "refresh_token"
 
 LOGGER = logging.getLogger(__package__)
 
-NAME = "Home Assistant"
 CLIENT_ID = "71b813eb-4a2e-483a-b831-4dec5cb9bf0d"
 AUTHORIZE_URL = "https://auth.tesla.com/oauth2/v3/authorize"
 TOKEN_URL = "https://auth.tesla.com/oauth2/v3/token"
@@ -42,3 +41,10 @@ class TeslaFleetState(StrEnum):
     ONLINE = "online"
     ASLEEP = "asleep"
     OFFLINE = "offline"
+
+
+class TeslaFleetClimateSide(StrEnum):
+    """Tesla Fleet Climate Keeper Modes."""
+
+    DRIVER = "driver_temp"
+    PASSENGER = "passenger_temp"
