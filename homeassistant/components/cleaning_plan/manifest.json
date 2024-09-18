@@ -1,0 +1,13 @@
+{
+  "domain": "cleaning_plan",
+  "name": "Cleaning Plan",
+  "codeowners": ["@Codibex"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/cleaning_plan",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}

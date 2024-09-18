@@ -1,0 +1,19 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "weekly_plan_file": "Weekly plan file",
+          "last_cleaned_file": "Last cleaned file"
+        }
+      }
+    },
+    "error": {
+      "invalid_file": "Invalid file",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  }
+}

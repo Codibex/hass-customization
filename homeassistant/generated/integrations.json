@@ -902,6 +902,12 @@
       "config_flow": false,
       "iot_class": "cloud_polling"
     },
+    "cleaning_plan": {
+      "name": "Cleaning Plan",
+      "integration_type": "hub",
+      "config_flow": true,
+      "iot_class": "local_polling"
+    },
     "clementine": {
       "name": "Clementine Music Player",
       "integration_type": "hub",
