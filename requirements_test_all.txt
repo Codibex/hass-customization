@@ -245,14 +245,8 @@ aioharmony==0.2.10
 # homeassistant.components.hassio
 aiohasupervisor==0.1.0b0
 
-# homeassistant.components.savvy
-aiohasupervisor==2022.6.0
-
 # homeassistant.components.homekit_controller
 aiohomekit==3.2.3
-
-# homeassistant.components.savvy
-aiohttp==3.8.1
 
 # homeassistant.components.hue
 aiohue==4.7.3

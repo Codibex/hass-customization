@@ -6,6 +6,7 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .product_stock_entity import ProductStockEntity
 from .stock_api import StockApi
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ class SavvyCoordinator(DataUpdateCoordinator):
         )
 
         self.api = api
+        self.entities: dict[str, ProductStockEntity] = {}
 
     async def _async_setup(self) -> None:
         return await super()._async_setup()
@@ -44,3 +46,8 @@ class SavvyCoordinator(DataUpdateCoordinator):
 
         await self.api.async_update_stock(product_id, adjustmentType, amount)
         await self.async_request_refresh()
+
+    def get_entity(self, entity_id: str) -> ProductStockEntity | None:
+        """Get the entity by ID."""
+        object_id = entity_id.split(".")[1].lower()
+        return self.entities.get(object_id)

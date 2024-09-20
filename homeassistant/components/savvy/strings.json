@@ -9,5 +9,25 @@
       "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]",
       "no_devices_found": "[%key:common::config_flow::abort::no_devices_found%]"
     }
+  },
+  "services": {
+    "update_stock": {
+      "name": "Update Stock",
+      "description": "Update the stock of a product",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "The entity ID of the product"
+        },
+        "adjustment_type": {
+          "name": "Adjustment Type",
+          "description": "The type of adjustment (e.g., 'increase', 'decrease')"
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "The amount to adjust the stock by"
+        }
+      }
+    }
   }
 }

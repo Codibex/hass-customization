@@ -15,6 +15,11 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id]
     product_stocks = coordinator.data
 
-    entities = [ProductStockEntity(coordinator, stock) for stock in product_stocks]
+    entities = [
+        ProductStockEntity(coordinator, stock) for stock in product_stocks.values()
+    ]
+
+    for entity in entities:
+        coordinator.entities[entity.name.lower()] = entity
 
     async_add_entities(entities)

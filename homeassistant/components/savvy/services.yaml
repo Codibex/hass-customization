@@ -1,0 +1,8 @@
+update_stock:
+  fields:
+    entity_id:
+      example: "sensor.product_stock"
+    adjustment_type:
+      example: "increase"
+    amount:
+      example: 5
