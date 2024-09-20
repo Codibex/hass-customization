@@ -33,6 +33,12 @@ class ProductStockEntity(CoordinatorEntity):
             self._notification_quantity = stock["notificationQuantity"]
             self.async_write_ha_state()
 
+    async def async_update_stock(self, adjustmentType, amount):
+        """Call the coordinator to update stock."""
+        await self.coordinator.async_update_stock(
+            self._product_id, adjustmentType, amount
+        )
+
     @property
     def name(self):
         """Return the name of the entity."""

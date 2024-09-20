@@ -31,6 +31,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Register the service
+    async def handle_update_service(call):
+        """Handle the service call."""
+        entity_id = call.data.get("entity_id")
+        adjustmentType = call.data.get("adjustmentType")
+        amount = call.data.get("amount")
+        entity = hass.data[DOMAIN][entry.entry_id].get_entity(entity_id)
+        if entity:
+            await entity.async_update_stock(adjustmentType, amount)
+
+    hass.services.async_register(DOMAIN, "update_stock", handle_update_service)
+
     return True
 
 

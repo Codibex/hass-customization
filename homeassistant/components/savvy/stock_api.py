@@ -19,3 +19,12 @@ class StockApi:
             session.get(f"{self.base_url}/api/stock-mgmt/stock/overview") as response,
         ):
             return await response.json()
+
+    async def async_update_stock(self, product_id, adjustmentType, amount):
+        """Update stock for a product."""
+
+        async with aiohttp.ClientSession() as session:
+            await session.patch(
+                f"{self.base_url}/api/stock-mgmt/stock/products/{product_id}/adjust",
+                json={"adjustmentType": adjustmentType, "amount": amount},
+            )

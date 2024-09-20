@@ -38,3 +38,9 @@ class SavvyCoordinator(DataUpdateCoordinator):
             return {item["productId"]: item for item in data}
         except (ConnectionError, TimeoutError, ValueError) as err:
             raise UpdateFailed(f"Error fetching data: {err}") from err
+
+    async def async_update_stock(self, product_id, adjustmentType, amount):
+        """Call the PATCH endpoint to update stock."""
+
+        await self.api.async_update_stock(product_id, adjustmentType, amount)
+        await self.async_request_refresh()
