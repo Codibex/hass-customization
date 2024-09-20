@@ -49,5 +49,4 @@ class SavvyCoordinator(DataUpdateCoordinator):
 
     def get_entity(self, entity_id: str) -> ProductStockEntity | None:
         """Get the entity by ID."""
-        object_id = entity_id.split(".")[1].lower()
-        return self.entities.get(object_id)
+        return self.entities.get(entity_id)

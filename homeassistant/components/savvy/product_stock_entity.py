@@ -22,6 +22,8 @@ class ProductStockEntity(CoordinatorEntity):
         self._max_quantity = stock["maxQuantity"]
         self._notification_quantity = stock["notificationQuantity"]
 
+        self.entity_id = f"sensor.savvy_{self._name.lower()}"
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""

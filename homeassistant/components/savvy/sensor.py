@@ -20,6 +20,6 @@ async def async_setup_entry(
     ]
 
     for entity in entities:
-        coordinator.entities[entity.name.lower()] = entity
+        coordinator.entities[entity.entity_id] = entity
 
     async_add_entities(entities)
