@@ -508,6 +508,7 @@ FLOWS = {
         "sabnzbd",
         "samsungtv",
         "sanix",
+        "savvy",
         "schlage",
         "scrape",
         "screenlogic",

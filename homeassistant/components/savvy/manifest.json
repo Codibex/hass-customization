@@ -1,0 +1,13 @@
+{
+  "domain": "savvy",
+  "name": "Savvy",
+  "codeowners": ["@Codibex"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/savvy",
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "requirements": ["aiohttp==3.8.1", "aiohasupervisor==2022.6.0"],
+  "ssdp": [],
+  "zeroconf": []
+}
