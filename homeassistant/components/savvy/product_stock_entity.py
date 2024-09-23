@@ -1,7 +1,39 @@
 """Module for representing a Product Stock entity in Home Assistant."""
 
+import re
+import unicodedata
+
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+
+def normalize_entity_id(name):
+    """Normalize the entity ID by removing invalid characters and replacing diacritics."""
+    # Replace German umlauts and other common diacritics
+    replacements = {
+        "ä": "ae",
+        "ö": "oe",
+        "ü": "ue",  # pylint: disable=invalid-name
+        "ß": "ss",
+        "é": "e",
+        "è": "e",
+        "ê": "e",
+        "à": "a",
+        "á": "a",
+        "â": "a",
+        "ç": "c",
+        # Add more replacements as needed
+    }
+    for original, replacement in replacements.items():
+        name = name.replace(original, replacement)
+
+    # Normalize the name to NFKD form
+    normalized_name = unicodedata.normalize("NFKD", name)
+    # Encode to ASCII bytes, ignore errors, and decode back to string
+    ascii_name = normalized_name.encode("ascii", "ignore").decode("ascii")
+    # Replace any remaining invalid characters with underscores
+    entity_id = re.sub(r"[^a-zA-Z0-9_]", "_", ascii_name)
+    return entity_id.lower()
 
 
 class ProductStockEntity(CoordinatorEntity):
@@ -22,7 +54,7 @@ class ProductStockEntity(CoordinatorEntity):
         self._max_quantity = stock["maxQuantity"]
         self._notification_quantity = stock["notificationQuantity"]
 
-        self.entity_id = f"sensor.savvy_{self._name.lower()}"
+        self.entity_id = f"sensor.savvy_{normalize_entity_id(self._name)}"
 
     @callback
     def _handle_coordinator_update(self) -> None:

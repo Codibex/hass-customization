@@ -22,7 +22,7 @@ class SavvyCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name="Savvy",
-            update_interval=timedelta(minutes=5),
+            update_interval=timedelta(seconds=5),
             always_update=True,
         )
 
