@@ -1,5 +1,6 @@
 """Provides an API wrapper for Savvy to fetch product stocks."""
 
+import asyncio
 import os
 import ssl
 
@@ -17,10 +18,12 @@ class StockApi:
             os.path.dirname(__file__), "savvy_certificate.crt"
         )
 
-    def _create_ssl_context(self):
+    async def _async_create_ssl_context(self):
         """Create an SSL context if a certificate path is provided."""
         if self.cert_path:
-            ssl_context = ssl.create_default_context(cafile=self.cert_path)
+            ssl_context = await asyncio.to_thread(
+                ssl.create_default_context, cafile=self.cert_path
+            )
         else:
             ssl_context = None
         return ssl_context
@@ -28,7 +31,7 @@ class StockApi:
     async def fetch_product_stocks(self) -> list:
         """Fetch product stocks from the Savvy API."""
 
-        ssl_context = self._create_ssl_context()
+        ssl_context = await self._async_create_ssl_context()
         conn = aiohttp.TCPConnector(ssl=ssl_context)
 
         async with (
@@ -40,7 +43,7 @@ class StockApi:
     async def async_update_stock(self, product_id, adjustmentType, amount):
         """Update stock for a product."""
 
-        ssl_context = self._create_ssl_context()
+        ssl_context = await self._async_create_ssl_context()
         conn = aiohttp.TCPConnector(ssl=ssl_context)
 
         async with aiohttp.ClientSession(connector=conn) as session:

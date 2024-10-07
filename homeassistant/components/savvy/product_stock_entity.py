@@ -53,8 +53,12 @@ class ProductStockEntity(CoordinatorEntity):
         self._min_quantity = stock["minQuantity"]
         self._max_quantity = stock["maxQuantity"]
         self._notification_quantity = stock["notificationQuantity"]
+        self._should_notify_on_quantity = stock["shouldNotifyOnQuantity"]
 
         self.entity_id = f"sensor.savvy_{normalize_entity_id(self._name)}"
+        self._attr_unique_id = (
+            f"savvy_{self._product_id}_{normalize_entity_id(self._name)}"
+        )
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -90,4 +94,5 @@ class ProductStockEntity(CoordinatorEntity):
             "min_quantity": self._min_quantity,
             "max_quantity": self._max_quantity,
             "notification_quantity": self._notification_quantity,
+            "should_notify_on_quantity": self._should_notify_on_quantity,
         }
