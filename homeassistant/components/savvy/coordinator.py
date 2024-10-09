@@ -45,7 +45,7 @@ class SavvyCoordinator(DataUpdateCoordinator):
         """Call the PATCH endpoint to update stock."""
 
         await self.api.async_update_stock(product_id, adjustmentType, amount)
-        await self.async_request_refresh()
+        await self._async_refresh(log_failures=True)
 
     def get_entity(self, entity_id: str) -> ProductStockEntity | None:
         """Get the entity by ID."""
