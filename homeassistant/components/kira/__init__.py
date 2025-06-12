@@ -21,8 +21,7 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import discovery
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import config_validation as cv, discovery
 from homeassistant.helpers.typing import ConfigType
 
 DOMAIN = "kira"
@@ -111,7 +110,7 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
         """Set up the KIRA module and load platform."""
         # note: module_name is not the HA device name. it's just a unique name
         # to ensure the component and platform can share information
-        module_name = ("%s_%d" % (DOMAIN, idx)) if idx else DOMAIN
+        module_name = f"{DOMAIN}_{idx}" if idx else DOMAIN
         device_name = module_conf.get(CONF_NAME, DOMAIN)
         port = module_conf.get(CONF_PORT, DEFAULT_PORT)
         host = module_conf.get(CONF_HOST, DEFAULT_HOST)

@@ -34,13 +34,11 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import entity_platform
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import VolDictType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from . import LyricDeviceEntity
 from .const import (
     DOMAIN,
     LYRIC_EXCEPTIONS,
@@ -50,6 +48,7 @@ from .const import (
     PRESET_TEMPORARY_HOLD,
     PRESET_VACATION_HOLD,
 )
+from .entity import LyricDeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -122,7 +121,9 @@ SCHEMA_HOLD_TIME: VolDictType = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the Honeywell Lyric climate platform based on a config entry."""
     coordinator: DataUpdateCoordinator[Lyric] = hass.data[DOMAIN][entry.entry_id]
@@ -174,7 +175,6 @@ class LyricClimate(LyricDeviceEntity, ClimateEntity):
         PRESET_TEMPORARY_HOLD,
         PRESET_VACATION_HOLD,
     ]
-    _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(
         self,
@@ -208,7 +208,13 @@ class LyricClimate(LyricDeviceEntity, ClimateEntity):
         if LYRIC_HVAC_MODE_COOL in device.allowed_modes:
             self._attr_hvac_modes.append(HVACMode.COOL)
 
-        if LYRIC_HVAC_MODE_HEAT_COOL in device.allowed_modes:
+        # TCC devices like the Lyric round do not have the Auto
+        # option in allowed_modes, but still support Auto mode
+        if LYRIC_HVAC_MODE_HEAT_COOL in device.allowed_modes or (
+            self._attr_thermostat_type is LyricThermostatType.TCC
+            and LYRIC_HVAC_MODE_HEAT in device.allowed_modes
+            and LYRIC_HVAC_MODE_COOL in device.allowed_modes
+        ):
             self._attr_hvac_modes.append(HVACMode.HEAT_COOL)
 
         # Setup supported features

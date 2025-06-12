@@ -9,7 +9,7 @@ import pytest
 
 from homeassistant import setup
 from homeassistant.components.trend.const import DOMAIN
-from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNKNOWN
+from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant, State
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.setup import async_setup_component
@@ -395,3 +395,92 @@ async def test_device_id(
     trend_entity = entity_registry.async_get("binary_sensor.trend")
     assert trend_entity is not None
     assert trend_entity.device_id == source_entity.device_id
+
+
+@pytest.mark.parametrize(
+    "error_state",
+    [
+        STATE_UNKNOWN,
+        STATE_UNAVAILABLE,
+    ],
+)
+async def test_unavailable_source(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    freezer: FrozenDateTimeFactory,
+    setup_component: ComponentSetup,
+    error_state: str,
+) -> None:
+    """Test for unavailable source."""
+    await setup_component(
+        {
+            "sample_duration": 10000,
+            "min_gradient": 1,
+            "max_samples": 25,
+            "min_samples": 5,
+        },
+    )
+
+    for val in (10, 20, 30, 40, 50, 60):
+        freezer.tick(timedelta(seconds=2))
+        hass.states.async_set("sensor.test_state", val)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("binary_sensor.test_trend_sensor").state == "on"
+
+    hass.states.async_set("sensor.test_state", error_state)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("binary_sensor.test_trend_sensor").state == STATE_UNAVAILABLE
+
+    hass.states.async_set("sensor.test_state", 50)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("binary_sensor.test_trend_sensor").state == "on"
+
+
+async def test_invalid_state_handling(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    setup_component: ComponentSetup,
+    freezer: FrozenDateTimeFactory,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test handling of invalid states in trend sensor."""
+    await setup_component(
+        {
+            "sample_duration": 10000,
+            "min_gradient": 1,
+            "max_samples": 25,
+            "min_samples": 5,
+        },
+    )
+
+    for val in (10, 20, 30, 40, 50, 60):
+        freezer.tick(timedelta(seconds=2))
+        hass.states.async_set("sensor.test_state", val)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("binary_sensor.test_trend_sensor").state == STATE_ON
+
+    # Set an invalid state
+    hass.states.async_set("sensor.test_state", "invalid")
+    await hass.async_block_till_done()
+
+    # The trend sensor should handle the invalid state gracefully
+    assert (sensor_state := hass.states.get("binary_sensor.test_trend_sensor"))
+    assert sensor_state.state == STATE_ON
+
+    # Check if a warning is logged
+    assert (
+        "Error processing sensor state change for entity_id=sensor.test_state, "
+        "attribute=None, state=invalid: could not convert string to float: 'invalid'"
+    ) in caplog.text
+
+    # Set a valid state again
+    hass.states.async_set("sensor.test_state", 50)
+    await hass.async_block_till_done()
+
+    # The trend sensor should return to a valid state
+    assert (sensor_state := hass.states.get("binary_sensor.test_trend_sensor"))
+    assert sensor_state.state == "on"

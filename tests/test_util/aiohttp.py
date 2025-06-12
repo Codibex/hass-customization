@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from http import HTTPStatus
 import re
+from types import TracebackType
 from typing import Any
 from unittest import mock
 from urllib.parse import parse_qs
@@ -62,6 +63,7 @@ class AiohttpClientMocker:
         cookies=None,
         side_effect=None,
         closing=None,
+        timeout=None,
     ):
         """Mock a request."""
         if not isinstance(url, RETYPE):
@@ -69,21 +71,21 @@ class AiohttpClientMocker:
         if params:
             url = url.with_query(params)
 
-        self._mocks.append(
-            AiohttpClientMockResponse(
-                method=method,
-                url=url,
-                status=status,
-                response=content,
-                json=json,
-                text=text,
-                cookies=cookies,
-                exc=exc,
-                headers=headers,
-                side_effect=side_effect,
-                closing=closing,
-            )
+        resp = AiohttpClientMockResponse(
+            method=method,
+            url=url,
+            status=status,
+            response=content,
+            json=json,
+            text=text,
+            cookies=cookies,
+            exc=exc,
+            headers=headers,
+            side_effect=side_effect,
+            closing=closing,
         )
+        self._mocks.append(resp)
+        return resp
 
     def get(self, *args, **kwargs):
         """Register a mock get request."""
@@ -108,6 +110,10 @@ class AiohttpClientMocker:
     def patch(self, *args, **kwargs):
         """Register a mock patch request."""
         self.request("patch", *args, **kwargs)
+
+    def head(self, *args, **kwargs):
+        """Register a mock head request."""
+        self.request("head", *args, **kwargs)
 
     @property
     def call_count(self):
@@ -166,7 +172,7 @@ class AiohttpClientMockResponse:
     def __init__(
         self,
         method,
-        url,
+        url: URL,
         status=HTTPStatus.OK,
         response=None,
         json=None,
@@ -296,6 +302,18 @@ class AiohttpClientMockResponse:
         if self.closing:
             raise ClientConnectionError("Connection closed")
         return self._response
+
+    async def __aenter__(self):
+        """Enter the context manager."""
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        """Exit the context manager."""
 
 
 @contextmanager

@@ -6,11 +6,21 @@ import abc
 from collections.abc import Callable, Iterable
 from contextlib import suppress
 from datetime import timedelta
-from functools import cached_property, partial
+from functools import partial
 import logging
-from typing import Any, Final, Generic, Literal, Required, TypedDict, cast, final
+from typing import (
+    Any,
+    Final,
+    Generic,
+    Literal,
+    Required,
+    TypedDict,
+    TypeVar,
+    cast,
+    final,
+)
 
-from typing_extensions import TypeVar
+from propcache.api import cached_property
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
@@ -62,6 +72,7 @@ from .const import (  # noqa: F401
     ATTR_WEATHER_WIND_GUST_SPEED,
     ATTR_WEATHER_WIND_SPEED,
     ATTR_WEATHER_WIND_SPEED_UNIT,
+    DATA_COMPONENT,
     DOMAIN,
     INTENT_GET_WEATHER,
     UNIT_CONVERSIONS,
@@ -196,7 +207,7 @@ class Forecast(TypedDict, total=False):
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the weather component."""
-    component = hass.data[DOMAIN] = EntityComponent[WeatherEntity](
+    component = hass.data[DATA_COMPONENT] = EntityComponent[WeatherEntity](
         _LOGGER, DOMAIN, hass, SCAN_INTERVAL
     )
     component.async_register_entity_service(
@@ -217,14 +228,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a config entry."""
-    component: EntityComponent[WeatherEntity] = hass.data[DOMAIN]
-    return await component.async_setup_entry(entry)
+    return await hass.data[DATA_COMPONENT].async_setup_entry(entry)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    component: EntityComponent[WeatherEntity] = hass.data[DOMAIN]
-    return await component.async_unload_entry(entry)
+    return await hass.data[DATA_COMPONENT].async_unload_entry(entry)
 
 
 class WeatherEntityDescription(EntityDescription, frozen_or_thawed=True):
